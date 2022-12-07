@@ -101,6 +101,7 @@ def alpha_beta_search(state, game):
             v = max(v, min_value(game.result(state, a), alpha, beta))
             if v >= beta:
                 print("pruning: {}".format(v))
+                print("state: {}".format(state))
                 return v
             prev_alpha = copy.deepcopy(alpha)
             alpha = max(alpha, v)
@@ -116,6 +117,7 @@ def alpha_beta_search(state, game):
             v = min(v, max_value(game.result(state, a), alpha, beta))
             if v <= alpha:
                 print("pruning: {}".format(v))
+                print("state: {}".format(state))
                 return v
             prev_beta = copy.deepcopy(beta)
             beta = min(beta, v)
