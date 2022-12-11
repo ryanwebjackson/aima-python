@@ -130,6 +130,9 @@ def alpha_beta_search(state, game):
     beta = np.inf
     best_action = None
     for a in game.actions(state):
+        # TODO: Make debugging statements optional.
+        print("action: {}".format(a))
+        print("state: {}".format(state))
         v = min_value(game.result(state, a), best_score, beta)
         if v > best_score:
             best_score = v
