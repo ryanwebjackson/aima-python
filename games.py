@@ -86,7 +86,7 @@ def expect_minmax(state, game):
     return max(game.actions(state), key=lambda a: chance_node(state, a), default=None)
 
 
-def alpha_beta_search(state, game):
+def alpha_beta_search(state, game, avoid_pruning=False):
     """Search game to determine best action; use alpha-beta pruning.
     As in [Figure 5.7], this version searches all the way to the leaves."""
 
@@ -99,7 +99,7 @@ def alpha_beta_search(state, game):
         v = -np.inf
         for a in game.actions(state):
             v = max(v, min_value(game.result(state, a), alpha, beta))
-            if v >= beta:
+            if v >= beta and not avoid_pruning:
                 print("pruning: {}".format(v))
                 print("state: {}".format(state))
                 return v
@@ -115,9 +115,10 @@ def alpha_beta_search(state, game):
         v = np.inf
         for a in game.actions(state):
             v = min(v, max_value(game.result(state, a), alpha, beta))
-            if v <= alpha:
+            if v <= alpha and not avoid_pruning:
                 print("pruning: {}".format(v))
                 print("state: {}".format(state))
+                # How can we ensure that a sub-node in which terminal_test is true is not being pruned? - Ryan Jackson
                 return v
             prev_beta = copy.deepcopy(beta)
             beta = min(beta, v)
@@ -137,6 +138,7 @@ def alpha_beta_search(state, game):
         if v > best_score:
             best_score = v
             best_action = a
+
     return best_action
 
 
