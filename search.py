@@ -916,10 +916,18 @@ def genetic_search(problem, ngen=1000, pmut=0.1, n=20):
     # NOTE: This is not tested and might not work.
     # TODO: Use this function to make Problems work with genetic_algorithm.
 
+    # CODE SMELL: Here 'initial_state' is referenced, but the problem class calls the property 'initial'.
     s = problem.initial_state
     states = [problem.result(s, a) for a in problem.actions(s)]
     random.shuffle(states)
-    return genetic_algorithm(states[:n], problem.value, ngen, pmut)
+
+    print("DEBUG states: ", states)
+
+    # if not isinstance(states[0], str):
+    #     # jack1805: Unfortunately have to do this or something similar - strings are expected for states below.
+    #     states = list(map(lambda state: state.tree_key, states[:n]))
+
+    return genetic_algorithm(states, problem.value, ngen, pmut)
 
 
 def genetic_algorithm(population, fitness_fn, gene_pool=[0, 1], f_thres=None, ngen=1000, pmut=0.1):
@@ -927,6 +935,8 @@ def genetic_algorithm(population, fitness_fn, gene_pool=[0, 1], f_thres=None, ng
     for i in range(ngen):
         population = [mutate(recombine(*select(2, population, fitness_fn)), gene_pool, pmut)
                       for i in range(len(population))]
+
+        print("DEBUG Population: ", population)
 
         fittest_individual = fitness_threshold(fitness_fn, f_thres, population)
         if fittest_individual:
@@ -938,6 +948,8 @@ def genetic_algorithm(population, fitness_fn, gene_pool=[0, 1], f_thres=None, ng
 def fitness_threshold(fitness_fn, f_thres, population):
     if not f_thres:
         return None
+
+    print("DEBUG Population: ", population)
 
     fittest_individual = max(population, key=fitness_fn)
     if fitness_fn(fittest_individual) >= f_thres:
@@ -967,9 +979,21 @@ def select(r, population, fitness_fn):
 
 
 def recombine(x, y):
-    n = len(x)
+    # If params are not strings assume we are running in jack1805's fork of AIMA-Python,
+    # where the state is a LazyAnimalState object.
+    if not isinstance(x, str):
+        new_x = x.tree_key
+    else:
+        new_x = x
+
+    if not isinstance(y, str):
+        new_y = y.tree_key
+    else:
+        new_y = y
+
+    n = len(new_x)
     c = random.randrange(0, n)
-    return x[:c] + y[c:]
+    return new_x[:c] + new_y[c:]
 
 
 def recombine_uniform(x, y):
